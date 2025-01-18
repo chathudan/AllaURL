@@ -1,0 +1,20 @@
+﻿GET https://localhost:5019/api/debug/tokens
+Accept: application/json
+
+
+#############
+GET https://localhost:5019/api/debug/token-data
+Accept: application/json
+
+#############
+GET https://localhost:5019/api/debug/urls
+Accept: application/json
+
+
+#############
+GET https://localhost:5019/api/debug/vcrds
+Accept: application/json
+
+#############
+GET https://localhost:5019/api/debug/token/0
+Accept: application/json

@@ -1,0 +1,12 @@
+﻿services:
+  nfc:
+    image: nfc
+    build:
+      context: .
+      dockerfile: NFC/Dockerfile
+
+  api:
+    image: api
+    build:
+      context: .
+      dockerfile: API/Dockerfile

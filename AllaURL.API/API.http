@@ -1,0 +1,54 @@
+@API_HostAddress = http://localhost:5019
+
+POST https://localhost:5019/Create
+Accept: */*
+Content-Type: application/json
+
+{
+  "Token": {
+    "Identifier": "google.com",
+    "TokenType": "Url",
+    "TokenData": {
+      "TokenType": "Url",
+      "RedirectUrl": "https://www.google.com",
+      "CreatedAt": "2025-01-01T00:00:00Z",
+      "LastUpdatedAt": "2025-01-01T00:00:00Z"
+    }
+  }
+}
+
+
+####################
+
+POST https://localhost:5019/Create
+Accept: */*
+Content-Type: application/json
+
+{
+  "Token": {
+    "Identifier": "john.doe",
+    "TokenType": "Vcard",
+      "TokenData": {
+	    "TokenType": "Vcard",
+        "Title": "Dr.",
+        "FirstName": "John",
+        "LastName": "Doe",
+        "JobTitle": "Software Engineer",
+        "Email": "john.doe@example.com",
+        "Phone": "+1234567890",
+        "Address": "123 Main St, Springfield, IL",
+        "Website": "https://www.johndoe.com",
+        "CreatedAt": "2025-01-01T00:00:00Z",
+        "LastUpdatedAt": "2025-01-01T00:00:00Z"
+      }
+  }
+}
+
+
+#####
+
+https://localhost:5019/f/google.com
+
+#####
+
+https://localhost:5019/f/john.doe
