@@ -5,19 +5,13 @@ namespace AllaURL.Data;
 
 public class AllaUrlDbContext : DbContext
 {
-    public AllaUrlDbContext()
-    {
-        
-    }
+    // Default constructor is removed because the parameterized one is used
+    // public AllaUrlDbContext() {}
 
-    public AllaUrlDbContext(DbContextOptions dbContextOptions) : base(dbContextOptions)
+    public AllaUrlDbContext(DbContextOptions<AllaUrlDbContext> dbContextOptions) : base(dbContextOptions)
     { }
     
     public virtual DbSet<TokenEntity> TokenEntity { get; set; }
-    
-    public virtual DbSet<VCardEntity> VCardEntity { get; set; }
-    
-    public virtual DbSet<UrlEntity> UrlEntity { get; set; }
     
     public virtual DbSet<TokenDataEntity> TokenDataEntity { get; set; }
 
@@ -25,14 +19,13 @@ public class AllaUrlDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new TokenEntityConfiguration());
-        modelBuilder.ApplyConfiguration(new TokenDataEntityConfiguration());
-        modelBuilder.ApplyConfiguration(new UrlEntityConfiguration());
-        modelBuilder.ApplyConfiguration(new VcardEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new TokenDataEntityConfiguration()); 
 
         
-        modelBuilder.Entity<TokenEntity>();
-        modelBuilder.Entity<UrlEntity>();
-        modelBuilder.Entity<VCardEntity>();
+        modelBuilder.Entity<TokenEntity>(); 
         modelBuilder.Entity<TokenDataEntity>();
+
+
+
     }
 }

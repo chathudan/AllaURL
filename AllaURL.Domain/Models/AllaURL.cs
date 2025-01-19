@@ -15,15 +15,15 @@ public class AllaURL
     public Token Token { get; set; }
 
     // Constructor for creating Token with associated data based on the type
-    public AllaURL(string identifier, TokenType type, string redirectUrl = null, VCardData vCardData = null)
-    {
-        Token = new Token
-        {
-            Identifier = identifier,
-            TokenType = type,
-            TokenData = CreateTokenData(type, redirectUrl, vCardData)
-        };
-    }
+    //public AllaURL(string identifier, TokenType type, string redirectUrl = null, VCardData vCardData = null)
+    //{
+    //    Token = new Token
+    //    {
+    //        Identifier = identifier,
+    //        TokenType = type,
+    //        TokenData = CreateTokenData(type, redirectUrl, vCardData)
+    //    };
+    //}
 
     // Method to create TokenData based on TokenType
     private ITokenData CreateTokenData(TokenType type, string redirectUrl, VCardData vCardData)

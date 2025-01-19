@@ -1,9 +1,9 @@
 
 using AllaURL.Common;
 using AllaURL.Data;
-using AllaURL.Data.Entities;
-using AllaURL.Data.Extensions;
+using AllaURL.Data.Entities; 
 using AllaURL.Domain.Exceptions;
+using AllaURL.Domain.Extensions;
 using AllaURL.Domain.Interfaces; 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -42,17 +42,10 @@ public class TokenRepository(IDistributedCache cache, AllaUrlDbContext context) 
         var tokenEntity = await FetchTokenEntityAsync(token)
                           ?? throw new TokenNotFoundException($"Token '{token}' not found.");
 
-        tokenEntity.TokenDataEntity = await FetchTokenDataEntityAsync(tokenEntity.Id, tokenEntity.Type)
-                                      ?? throw new TokenNotFoundException($"Token '{token}' data not found.");
-
-        tokenEntity.TokenDataEntity.TokenData =
-            await FetchSpecificTokenDataAsync(tokenEntity.TokenDataEntity.TokenDataId, tokenEntity.Type)
-            ?? throw new TokenNotFoundException($"Token data not found for: {token}");
-
-        // Attempt to save the data in cache again (assuming Redis becomes available)
+        //Attempt to save the data in cache again(assuming Redis becomes available)
         try
         {
-            await cache.SetDataAsync(token, tokenEntity);
+            await cache.SetDataAsync(token, tokenEntity.ConvertToDomain());
         }
         catch (Exception ex)
         {
@@ -65,36 +58,19 @@ public class TokenRepository(IDistributedCache cache, AllaUrlDbContext context) 
 
     private async Task<TokenEntity?> FetchTokenEntityAsync(string token)
     {
-        return await context.TokenEntity.AsNoTracking().FirstOrDefaultAsync(t => t.Identifier == token);
+        var tokenEntity = await context.TokenEntity
+                                   .Include(t => t.TokenDataEntity) 
+                                   .AsNoTracking()
+                                   .FirstOrDefaultAsync(t => t.Identifier == token);
+
+        return tokenEntity;
     }
 
-    private async Task<TokenDataEntity?> FetchTokenDataEntityAsync(int tokenId, TokenType tokenType)
+    private async Task<TokenDataEntity?> FetchTokenDataEntityAsync(int tokenId)
     {
         var token = await context.TokenDataEntity.AsNoTracking().Where(t => t.TokenId == tokenId).FirstOrDefaultAsync();
         return await context.TokenDataEntity.AsNoTracking().Where(t => t.TokenId == tokenId).FirstOrDefaultAsync();
 
-    }
-
-    private async Task<ITokenEntity?> FetchSpecificTokenDataAsync(int tokenDataId, TokenType tokenType)
-    {
-        Task<ITokenEntity?> task = tokenType switch
-        {
-            TokenType.Vcard => FetchVCardEntityAsync(tokenDataId),
-            TokenType.Url => FetchUrlEntityAsync(tokenDataId),
-            _ => Task.FromResult<ITokenEntity?>(null)
-        };
-
-        return await task;
-    }
-
-    private async Task<ITokenEntity?> FetchVCardEntityAsync(int vCardId)
-    {
-        return await context.VCardEntity.FirstOrDefaultAsync(v => v.Id == vCardId);
-    }
-
-    private async Task<ITokenEntity?> FetchUrlEntityAsync(int urlId)
-    {
-        return await context.UrlEntity.FirstOrDefaultAsync(u => u.Id == urlId);
     }
 
     public async Task SaveAsync(TokenEntity token)
@@ -110,29 +86,6 @@ public class TokenRepository(IDistributedCache cache, AllaUrlDbContext context) 
             var existingEntity = await context.TokenEntity
                 .FirstOrDefaultAsync(t => t.Identifier == token.Identifier);
 
-            if (token.TokenDataEntity.TokenType == TokenType.Vcard)
-            {
-                var vcardEntity = token.TokenDataEntity.TokenData as VCardEntity;
-                 
-                if (vcardEntity.VcardType == VcardType.Person)
-                    vcardEntity = vcardEntity as PersonVCardEntity;
-                else
-                    vcardEntity = vcardEntity as CompanyVCardEntity;
-
-                context.VCardEntity.Add(vcardEntity);
-                await context.SaveChangesAsync();
-                token.TokenDataEntity.TokenType = TokenType.Vcard;
-                token.TokenDataEntity.TokenDataId = vcardEntity.Id;
-            }
-            else if (token.TokenDataEntity.TokenType == TokenType.Url)
-            {
-                var urlEntity = (UrlEntity)token.TokenDataEntity.TokenData;
-                context.UrlEntity.Add(urlEntity);
-                await context.SaveChangesAsync();
-                token.TokenDataEntity.TokenType = TokenType.Url;
-                token.TokenDataEntity.TokenDataId = urlEntity.Id;
-            }
-             
             EntityEntry<TokenEntity> tokenEntity;
             
             if (existingEntity is not null)

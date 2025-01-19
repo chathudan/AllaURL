@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "AllaURL.Databse": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

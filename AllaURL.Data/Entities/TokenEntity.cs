@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AllaURL.Data.Entities;
 
+[Table("Tokens")]
 public class TokenEntity : IEntity
 {
     public int Id { get; set; }
@@ -19,7 +20,7 @@ public class TokenEntity : IEntity
 
     public DateTime LastUpdatedAt { get; set; }
 
-    public TokenType Type { get; set; } = TokenType.Url;
+    public TokenType TokenType { get; set; } = TokenType.Url;
 
     // Direct reference to the associated TokenDataEntity (either UrlEntity or VCardEntity)
     public virtual TokenDataEntity TokenDataEntity { get; set; }
@@ -31,21 +32,13 @@ internal class TokenEntityConfiguration : IEntityTypeConfiguration<TokenEntity>
     {
         builder.HasKey(t => t.Id);
         builder.Property(t => t.Id)
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd();  // Set the Id to auto-generate
 
         builder.Property(t => t.Identifier)
             .HasMaxLength(100)
-            .IsRequired();
-
-        // Ensure the relationship with TokenDataEntity is properly configured
-        //builder.HasOne(t => t.TokenDataEntity)  // One TokenEntity has one TokenDataEntity
-        //    .WithOne()  // TokenDataEntity has one TokenEntity
-        //    .HasForeignKey<TokenDataEntity>(td => td.TokenId)  // Foreign key from TokenDataEntity to TokenEntity
-        //    .OnDelete(DeleteBehavior.Cascade);  // Cascade delete when TokenEntity is deleted
-
-        builder.HasIndex(t => t.Identifier)
-            .IsUnique();
+            .IsRequired();  // Identifier should be required
     }
+
 }
 
 

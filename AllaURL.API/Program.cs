@@ -41,10 +41,14 @@ builder.Services.AddCors(o => o.AddPolicy("local", x =>
     x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 
 // Register the in-memory database
-builder.Services.AddDbContext<AllaUrlDbContext>(options =>
-    options.UseInMemoryDatabase("NFCDatabase"));
+//builder.Services.AddDbContext<AllaUrlDbContext>(options =>
+//    options.UseInMemoryDatabase("NFCDatabase"));
 
-  
+// Register the AllaUrlDbContext with PostgreSQL provider
+builder.Services.AddDbContext<AllaUrlDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnection")));
+
+
 // Add Repositories
 builder.Services.AddScoped<ITokenRepository, TokenRepository>(); 
 
@@ -53,7 +57,9 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 
 
 var redisConn = builder.Configuration["ConnectionStrings:RedisConnection"];
-if (!string.IsNullOrWhiteSpace(redisConn))
+bool isRedisUse = bool.Parse(builder.Configuration["UseRedis"]);
+
+if (isRedisUse && !string.IsNullOrWhiteSpace(redisConn))
 {
     builder.Services.AddStackExchangeRedisCache(options =>
     {

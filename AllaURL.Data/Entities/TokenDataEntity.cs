@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AllaURL.Data.Entities;
 
+[Table("TokenData")]
 public class TokenDataEntity : IEntity
 {
     public int Id { get; set; }
@@ -13,61 +14,37 @@ public class TokenDataEntity : IEntity
 
     public TokenType TokenType { get; set; }
 
-    // Foreign key to either UrlEntity or VCardEntity
-    public int TokenDataId { get; set; }
+    public string RedirectUrl { get; set; }
 
-    // Navigation property to the actual token data (UrlEntity or VCardEntity)
-    [NotMapped]
-    public virtual ITokenEntity TokenData { get; set; }
+    // Navigation property to Token
+    [ForeignKey("TokenId")]
+    public virtual TokenEntity TokenEntity { get; set; }
+
+
 }
 
 public class TokenDataEntityConfiguration : IEntityTypeConfiguration<TokenDataEntity>
 {
     public void Configure(EntityTypeBuilder<TokenDataEntity> builder)
     {
-        builder.HasKey(t => t.Id);
-        builder.Property(t => t.Id)
-            .ValueGeneratedOnAdd(); 
+        builder.HasKey(td => td.Id);
+        builder.Property(td => td.Id)
+            .ValueGeneratedOnAdd();  // Set the Id to auto-generate
 
-        // TokenDataEntity is related to TokenEntity and stores foreign key (TokenIdentifier)
-        builder.HasOne<TokenEntity>()
-            .WithOne()
-            .HasForeignKey<TokenEntity>(t => t.Id)
-            .OnDelete(DeleteBehavior.Cascade);
+        builder.Property(td => td.TokenType)
+            .IsRequired();  // TokenType is required
 
-        // TokenDataEntity stores the foreign key (TokenDataId) to either UrlEntity or VCardEntity
-        builder.Property(t => t.TokenDataId)
-            .IsRequired(); // Ensure the token data is not nullable
-
-        // Configure the Discriminator (could be used if polymorphism is in play)
-        builder.Property(t => t.TokenType)
-            .IsRequired();
-
-        // Optionally, configure the TokenType enum for storage as integer in the DB
-        builder.Property(t => t.TokenType)
-            .HasConversion<int>(); // Converts the TokenType enum to an integer (default approach)
-
-        // Configuring the relationship to UrlEntity or VCardEntity based on TokenType
-        builder.HasOne<UrlEntity>()
-            .WithMany()
-            .HasForeignKey(t => t.TokenDataId)
-            .OnDelete(DeleteBehavior.Cascade)
-            .IsRequired(false);
-
-        builder.HasOne<VCardEntity>()
-           .WithMany()
-           .HasForeignKey(t => t.TokenDataId)
-           .OnDelete(DeleteBehavior.Cascade)
-           .IsRequired(false);
+        builder.Property(td => td.RedirectUrl)
+            .HasMaxLength(500)  // Set the maximum length for the URL field
+            .IsRequired(false);  // Optional: make it nullable since it may not always have a URL
 
 
+        // Configure the foreign key to Token entity
+        builder.HasOne(td => td.TokenEntity)  // TokenData belongs to one Token
+               .WithOne(t => t.TokenDataEntity)  // Token has one TokenDataEntity
+               .HasForeignKey<TokenDataEntity>(td => td.TokenId)  // TokenData's TokenId is the foreign key
+               .OnDelete(DeleteBehavior.Cascade);  // Optional: Cascade delete if TokenDataEntity is deleted
 
-        // Configure indexes if needed
-        builder.HasIndex(t => new { t.Id, t.TokenDataId }).IsUnique();
 
-        // Configure the discriminator column
-        //builder.HasDiscriminator<int>("TokenType")
-        //    .HasValue<UrlEntity>((int)TokenType.Url)
-        //    .HasValue<VCardEntity>((int)TokenType.Vcard);
     }
 }

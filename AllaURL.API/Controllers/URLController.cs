@@ -1,6 +1,5 @@
 ﻿using AllaURL.Common;
-using AllaURL.Data; 
-using AllaURL.Data.Extensions;
+using AllaURL.Data;  
 using AllaURL.Domain.Extensions;
 using AllaURL.Domain.Interfaces;
 using AllaURL.Domain.Models;
@@ -36,7 +35,7 @@ public class URLController(ITokenService tokenService) : ControllerBase
 
         // Validate token model
         if (string.IsNullOrWhiteSpace(allaURL.Token.Identifier) ||
-            (allaURL.Token.TokenType == TokenType.Url && string.IsNullOrWhiteSpace(((UrlData)allaURL.Token.TokenData)?.RedirectUrl)))
+            (allaURL.Token.TokenType == TokenType.Url && string.IsNullOrWhiteSpace(((TokenData)allaURL.Token.TokenData).RedirectUrl)))
         {
             return BadRequest("Token Identifier and Redirect URL are required.");
         }
@@ -47,7 +46,7 @@ public class URLController(ITokenService tokenService) : ControllerBase
         return Ok(new { message = "Token created successfully", allaURL.Token.Identifier });
     }
 
-    private async Task<IActionResult> PerformTokenRedirect(string token, string ipAddress)
+    private async Task<IActionResult> PerformTokenRedirect(string token, string ipAddress, bool isRedirect = true)
     {
         var isValid = true; // TODO: Add actual validation logic for the token
         if (!isValid)
@@ -62,13 +61,16 @@ public class URLController(ITokenService tokenService) : ControllerBase
             return NotFound("Token not found.");
         }
 
+        if (!isRedirect)
+            return Ok(tokenEntity.TokenData);
+
         // Check the type of token (URL or vCard)
         if (tokenEntity.TokenType == TokenType.Url)
         {
             // Redirect to the stored URL
-            if (tokenEntity.TokenData is UrlData urlData)
+            if (tokenEntity.TokenData is TokenData tokenData)
             {
-                return Redirect(urlData.RedirectUrl);
+                return Redirect(tokenData.RedirectUrl);
             }
             else
             {
@@ -78,19 +80,19 @@ public class URLController(ITokenService tokenService) : ControllerBase
         else if (tokenEntity.TokenType == TokenType.Vcard)
         {
             // Generate vCard data (either person or company)
-            var vCardData = tokenEntity.TokenData as VCardData;
-            if (vCardData != null)
-            {
-                var vCardString = GenerateVCard(vCardData);
+            //var vCardData = tokenEntity.TokenData as VCardData;
+            //if (vCardData != null)
+            //{
+            //    var vCardString = GenerateVCard(vCardData);
 
-                // Return the vCard as a downloadable file
-                var vCardBytes = Encoding.UTF8.GetBytes(vCardString);
-                return File(vCardBytes, "text/vcard", $"{tokenEntity.Identifier}.vcf");
-            }
-            else
-            {
-                return BadRequest("Invalid vCard data.");
-            }
+            //    // Return the vCard as a downloadable file
+            //    var vCardBytes = Encoding.UTF8.GetBytes(vCardString);
+            //    return File(vCardBytes, "text/vcard", $"{tokenEntity.Identifier}.vcf");
+            //}
+            //else
+            //{
+            //    return BadRequest("Invalid vCard data.");
+            //}
         }
 
         return BadRequest("Invalid token type.");

@@ -4,13 +4,22 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AllaURL.Domain.Models
 {
-    public class Token : ITokenData
+    public class Token 
     {
         [NotMapped]
         public int Id { get; set; }
         public string Identifier { get; set; }
+
+        public bool IsActive { get; set; }
+
+        public bool IsAllocated { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+
+        public DateTime LastUpdatedAt { get; set; }
+
         public TokenType TokenType { get; set; }
 
-        public ITokenData TokenData { get; set; }  // Reference to domain data (URL or VCard)
+        public TokenData TokenData { get; set; }  // Reference to domain data (URL or VCard)
     }
 }

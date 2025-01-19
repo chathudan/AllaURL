@@ -6,17 +6,18 @@ Content-Type: application/json
 
 {
   "Token": {
-    "Identifier": "google.com",
+    "Identifier": "google",
+    "IsActive": true,
+    "IsAllocated": false,
+    "CreatedAt": "2025-01-01T00:00:00Z",
+    "LastUpdatedAt": "2025-01-01T00:00:00Z",
     "TokenType": "Url",
     "TokenData": {
       "TokenType": "Url",
-      "RedirectUrl": "https://www.google.com",
-      "CreatedAt": "2025-01-01T00:00:00Z",
-      "LastUpdatedAt": "2025-01-01T00:00:00Z"
+      "RedirectUrl": "https://www.google.com"
     }
   }
 }
-
 
 ####################
 
@@ -47,7 +48,11 @@ Content-Type: application/json
 
 #####
 
-https://localhost:5019/f/google.com
+https://localhost:5019/f/google
+
+#####
+
+https://localhost:5019/f/washia
 
 #####
 
