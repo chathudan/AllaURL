@@ -1,4 +1,5 @@
-﻿using Duende.IdentityServer.Models;
+﻿using AllaURL.Domain.Common;
+using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Test;
 using System.Security.Claims;
 
@@ -16,7 +17,7 @@ public static class Config
     public static IEnumerable<ApiScope> ApiScopes =>
         new ApiScope[]
             {
-                  new ApiScope(name: "api", displayName: "AllaURL API")
+                  new ApiScope(IdentityScopes.AllaUrlApi, displayName: "AllaURL API")
             };
 
     public static IEnumerable<Client> Clients =>
@@ -24,7 +25,7 @@ public static class Config
         {
             new Client
             {
-                ClientId = "allaurl-api",
+                ClientId = "AllaURL.API",
                 ClientSecrets = { new Secret("your-secret".Sha256()) },
                 AllowedGrantTypes = GrantTypes.ClientCredentials, // Use the Authorization Code Flow
                 RedirectUris = { "http://localhost:5000/signin-oidc" }, // Redirect URL for your app

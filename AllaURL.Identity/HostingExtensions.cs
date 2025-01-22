@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http; 
+using Microsoft.AspNetCore.Http;
 using Duende.IdentityServer;
 using Duende.IdentityServer.EntityFramework;
 using Duende.IdentityServer.EntityFramework.Storage;
@@ -53,7 +53,7 @@ internal static class HostingExtensions
             .AddInMemoryIdentityResources(Config.IdentityResources)
             .AddInMemoryApiScopes(Config.ApiScopes)
             .AddInMemoryClients(Config.Clients)
-            
+
             .AddServerSideSessions()
             .AddTestUsers(TestUsers.Users); // Add test users TODO: Remove this in production
 
